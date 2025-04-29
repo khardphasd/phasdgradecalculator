@@ -1,0 +1,36 @@
+import pandas as pd
+
+# Load the grading scale data
+df = pd.read_csv('Grading scale.xlsx - Sheet1.csv')
+
+# Function to process grade calculation
+def calculate_grade(percentage, df):
+    for index, row in df.iterrows():
+        lower_bound, upper_bound = map(float, row['Numeric'].split(' - '))
+        if lower_bound <= percentage <= upper_bound:
+            return {
+                'letter_grade': row['Letter'],
+                'gpa': row['GPA'],
+                'ap_gpa': row['AP']
+            }
+    return {'letter_grade': 'Invalid', 'gpa': 'Invalid', 'ap_gpa': 'Invalid'}
+
+# Create dummy endpoint for the grade calculation (since we don't have a server)
+def calculate_grade_endpoint(percentage_data, df):
+    percentage = percentage_data.get('percentage')
+    if percentage is None:
+        return {'error': 'Percentage is required'}, 400  # Simulate Bad Request
+    try:
+        percentage = float(percentage)
+    except ValueError:
+        return {'error': 'Invalid percentage value'}, 400  # Simulate Bad Request
+
+    grade_info = calculate_grade(percentage, df)
+    return grade_info, 200  # Simulate OK response
+
+# Example usage (simulating a POST request)
+percentage_data = {'percentage': 61}
+result, status_code = calculate_grade_endpoint(percentage_data, df)
+
+if status_code == 200:
+    print(result)
